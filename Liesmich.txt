@@ -1,0 +1,84 @@
+                           Beschreibung    
+
+Die Programme der Unit UniW32 und UniW64 unterliegen der Lizenz LGPL Version 3.
+
+Die Programme UniW32Test.exe und UniW64Test.exe sind kompilierten Konsolen
+Testprogramme für Windows.
+
+Diese beiden Units enthalten die Programmroutinen, die für die Umkodierung von
+einer Unicode Kodierungsform in eine andere Unicode Kodierungsform erforderlich
+sind. Die Unit UniW32 ist für 32 bit Systeme und die Unit UniW64 für 64 bit systeme
+erforderlich. 
+Für eine schnelle Umkodierung sind die Routinen im Inline Assembler für den
+Freepascal 32/64 bit Compiler ab Versin 2.6.4 geschrieben. Ein kleiner Teil in
+Pascal. Die Routinen können ebenfalls in Delphi 32/64 bit verwendet werden. 
+Ich habe dies jedoch nicht getestet, da ich keinen Delphi Compiler habe.
+
+Einige Routinen haben einen zusätzlichen Parameter In- oder OutByteOrder. 
+Dieser Parameter legt die Byteanordnung der Kodierung im Text fest.(UTF32,UTF16)
+  tyLE = Bytreihenfolge (Intel) 
+  tyBE = Bytreihenfolge MIPS...
+Die Berücksichtigung der Byteanordnung im Text habe ich mit implementiert um den
+Datenaustausch zwischen unterschiedlichen Betriebssystemen zu erleichtern.
+Beachten sie, das ein UTF16BE oder UTF32BE kodierter Text nicht im FPC Compiler
+verarbeitet werden kann, da dieser grundsätzlich mit UTF16LE und UTF32LE srbeitet. 
+Standardmassig ist der Parameter In- oder OutbyteOrder, wenn sie nichts eingeben,
+auf tyLE gesetzt.
+  
+Alle Routinen arbeiten OHNE byte order mark (BOM). Ein vorhandener BOM in den
+Eingabetexten wird ignoriert, aber bei fnUTF8Length mit gezählt.  
+Wenn sie einen BOM benötigen, so müssen sie diesen am Textanfang mit der
+System Routine Insert einfügen. Ein UTF8text sollte gemäß Unicode keinen BOM
+erhalten. 
+Die Routinen setzen bei auftretenden Kodierungsfehlern im Eingabetext das
+Unicodezeichen U+FFDF (Fehlermarke) im Ergebnistext. Leider hat das FPC-Team,
+aus meiner Sicht, ungünstige Bezeichnungen gewählt. z.B. Unicodestring kann
+ein UTF32,UTF16 oder UTF8 kodierter Text sein. Desweiteren ist die UTF32 Kodierung
+als dynamisches Feld angelegt, und nicht wie bei UTF8 oder UTF16 als Text. 
+Dies hat zur Folge, dass kein Copy ana Write erfolgt.
+Hier merkt man, dass die Delphi Kompatibilität nicht immer günstig ist.
+
+Die Unit hat folgende Routinen implementiert:
+    - fnUTF8Length 
+      Ermittelt die ANZAHL der im Text vorhandenen Zeichen. (Nicht die Bytes!)
+    - fnUTF8ToUTF16
+      Ändert die als UTF8 vorliegende Kodierung in eine UTF16 Kodierung.
+      Der Parameter InByteOrder erlaubt, abweichend von der system routinen,
+      die Festlegung der Byteanordnung in der UTF16 Kodierung.
+    - fnUTF8ToUTF32
+      Ändert die Kodierung von UTF8 zu UTF32. Bytereihenfolge in UTF32 ist tyLE.
+    - fnUTF16ToUTF8
+      Kodiert von UTF16 (tyLE,tyBE) nach UTF8
+    - fnUTF16ToUTF32
+      Ändert die Kodierung von UTF16 nach UTF32. Bytereihenfolge in UTF32 ist tyLE
+    - fnUTF32ToUTF8
+      Ändert die Kodierung von UTF32 nach UTF8.
+    - fnUTF32ToUTF16
+      Ändert die Kodierung von UTF32 nach UTF16. 
+      Bytreihenfolge in UTF16 ist tyLE oder tyBE.   
+      
+Für die Möglichkeit der separaten Tests der Units können sie das Konsolenprogramm
+UNIW32Test oder UNIW64Test verwendes. Diese bieten auch einen Laufzeittest
+zu den system routinen. Hier sehen sie den beträchtlichen Gescwindigkeitsgewinn
+durch die Implementation in Assembler. Dieser ist besonders beim Compiler der
+Version 264 erkennbar.
+
+Anmerkungen:
+  Da die Routinen in Assembler geschrieben sind, können diese bei Bedarf auch
+  mit anderen Hochsprachen genutzt werden( C, C++ usw.). Dazu sind nur die 
+  Funktionsköpfe anzupassen und die IFDEF zu ändern oder zu entfernen.
+  
+  Damit fehlerhafte Kodierungen im Eingabetext korrect verarbeitet werden können,
+  Fehlermarke im Ausgangstext setzen, ist es erforderlich im Eingabetext die
+  Anzahl der Buchstaben oder Zeichen zu zählen. Die UTF8 Kodierung kann von 1
+  bis 4 Byte variieren. Die Bytelänge des Textes nützt hier nichts. 
+  Deshalb erfolgt bei vielen Umkodierungen eine Ermittlung der benötigten 
+  Zeichenanzahl im Ergebnistext um den benötigten Speicherplatz für den 
+  Ergebnistext festzulegen.(Das ist auch die Ursache warum die system routinen
+  das Fragezeichen anstatt der Fehlermarke setzen, obwohl damit der Unicodestandard
+  verletzt wird. Die Fehlermarke hat in UTF8 3 Byte, in UTF16 2 Byte und 
+  in UTF32 4 Byte. Das Fragezeichen ist aber ein gültiges Unicodezeichen und
+  sollte nicht als Fehlermarke misbraucht werden.)
+
+ Klaus Stöhr  
+    

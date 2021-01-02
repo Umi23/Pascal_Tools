@@ -1,0 +1,83 @@
+                           Description    
+
+The programs of the UniW32 and UniW64 unit are subject to the LGPL version 3 license.
+
+The programs UniW32Test.exe and UniW64Test.exe are comiled console test programs
+for windows.
+
+These two units contain the program routines, which are required for the conversion
+from one Unicode encoding form to another Unicode encoding form.
+The unit UniW32 is required for 32 bit systems and the unit UniW64 for 64 bit systems.
+ 
+For a fast recoding the routines are written in the inline assembler for the Freepascal
+32/64 bit compiler from version 2.6.4 and above. A small part is written in
+Pascal. The routines can also be used in Delphi 32/64 bit. But I didn't test this,
+because I don't have a Delphi compiler.
+
+Some routines have an additional parameter In- or OutByteOrder. 
+This parameter defines the byte order of the encoding in the text.(UTF32,UTF16)
+  tyLE = byte order (Intel) 
+  tyBE = byte order MIPS...
+The consideration of the byte order in the text I have implemented with to the
+data exchange between different operating systems.
+Note that a UTF16BE or UTF32BE encoded text can not be processed in the FPC compiler
+because it works with UTF16LE and UTF32LE. 
+By default the parameter In- or OutbyteOrder is set to tyLE if you do not enter
+anything.
+  
+All routines work WITHOUT byte order mark (BOM). An existing BOM in the input
+texts is ignored, but counted in routine fnUTF8Length.  
+If you need a BOM, then you must insert this at the text beginning with the
+system routine Insert. A UTF8text should not get a BOM according to Unicode.
+The routines set the Unicode character U+FFDF in case of encoding errors in the
+input text in the the result text. 
+Unfortunately the FPC team, from my point of view, unfavorable designations. 
+e.g. Unicodestring can be a UTF32,UTF16 or UTF8 encoded text. Furthermore the
+UTF32 encoding is created as a dynamic field, and not as text as with UTF8 or UTF16. 
+This has the consequence that no Copy ana Write takes place.
+Here one notices that the Delphi compatibility is not always favorable.
+
+The unit has implemented the following routines:
+    - fnUTF8Length 
+      Determines the NUMBER of characters present in the text. (Not the bytes!)
+    - fnUTF8ToUTF16
+      Changes the encoding present as UTF8 into a UTF16 encoding.
+      The parameter InByteOrder allows, different from the system routines,
+      to specify the byte order in the UTF16 encoding.
+    - fnUTF8ToUTF32
+      Changes the encoding from UTF8 to UTF32. Byte order in UTF32 is tyLE.
+    - fnUTF16ToUTF8
+      Encodes from UTF16 (tyLE,tyBE) to UTF8.
+    - fnUTF16ToUTF32
+      Changes the encoding from UTF16 to UTF32. Byte order in UTF32 is tyLE
+    - fnUTF32ToUTF8
+      Changes the encoding from UTF32 to UTF8.
+    - fnUTF32ToUTF16
+      Changes the encoding from UTF32 to UTF16. 
+      Byte order in UTF16 is tyLE or tyBE.   
+      
+For the possibility of separate tests of the units you can use the console program
+UNIW32Test.exe or UNIW64Test.exe. These offer also a runtime test for the system
+routines. Here you can see the considerable gain in speed by the implementation
+in assembler. This is especially noticeable with the compiler of version 264.
+
+Notes:
+  Because the routines are written in assembler, they can also be used with other
+  high level languages (C, C++ etc.). For this only the function headers are need
+  to change and remove the IFDEF.
+  So that incorrect codings in the input text can be correctly processed,
+  (set error marker in the result text) it is necessary in the input text the
+  number of letters or characters to count. The UTF8 encoding can vary from 1
+  to 4 bytes. The byte length of the text is of no use here. 
+  Therefore with many recodings a determination of the necessary number of 
+  characters in the result text to determine the required storage space for the
+  result text. (This is also the reason why the system routines use the question
+  mark put instead of the error mark, although this violates the Unicode standard.
+  The error mark has 3 bytes in UTF8, 2 bytes in UTF16 and 4 bytes in UTF32. 
+  The question mark, however, is a valid Unicode character and should not be
+  misused as error mark.
+
+ Klaus Stöhr  
+    
+
+Translated with www.DeepL.com/Translator (free version)
