@@ -2,7 +2,7 @@
 
 The programs of the UniW32 and UniW64 unit are subject to the LGPL version 3 license.
 
-The programs UniW32Test.exe and UniW64Test.exe are comiled console test programs
+The programs UniW32Test.exe and UniW64Test.exe are compiled console test programs
 for windows.
 
 These two units contain the program routines, which are required for the conversion
@@ -78,6 +78,4 @@ Notes:
   misused as error mark.
 
  Klaus Stöhr  
-    
-
-Translated with www.DeepL.com/Translator (free version)
+ 
